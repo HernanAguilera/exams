@@ -41,3 +41,12 @@ This is a project creted to be used as a template to acelerated building develop
 # For testing environment
 ~$ php bin/console --env=test doctrine:database:create
 ```
+
+### Applying migrations
+
+```bash
+# For development environment
+~$ php bin/console doctrine:migrations:migrate
+# For testing environment
+~$ php bin/console --env=test doctrine:migrations:migrate
+```

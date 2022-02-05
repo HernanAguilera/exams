@@ -2,13 +2,13 @@
 
 namespace App\Entity;
 
-use App\Repository\AdditionalFieldRepository;
+use App\Repository\AdditionalAttributeRepository;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
- * @ORM\Entity(repositoryClass=AdditionalFieldRepository::class)
+ * @ORM\Entity(repositoryClass=AdditionalAttributeRepository::class)
  */
-class AdditionalField
+class AdditionalAttribute
 {
     /**
      * @ORM\Id
@@ -18,7 +18,7 @@ class AdditionalField
     private $id;
 
     /**
-     * @ORM\Column(type="string", length=128)
+     * @ORM\Column(type="string", length=255)
      */
     private $attribute;
 
@@ -28,9 +28,14 @@ class AdditionalField
     private $value;
 
     /**
-     * @ORM\ManyToOne(targetEntity=TypeFieldContent::class, inversedBy="additionalFields")
+     * @ORM\Column(type="string", length=255, nullable=true)
      */
-    private $type;
+    private $related_attribute;
+
+    /**
+     * @ORM\Column(type="string", length=255, nullable=true)
+     */
+    private $related_value;
 
     public function getId(): ?int
     {
@@ -61,14 +66,26 @@ class AdditionalField
         return $this;
     }
 
-    public function getType(): ?TypeFieldContent
+    public function getRelatedAttribute(): ?string
     {
-        return $this->type;
+        return $this->related_attribute;
     }
 
-    public function setType(?TypeFieldContent $type): self
+    public function setRelatedAttribute(?string $related_attribute): self
     {
-        $this->type = $type;
+        $this->related_attribute = $related_attribute;
+
+        return $this;
+    }
+
+    public function getRelatedValue(): ?string
+    {
+        return $this->related_value;
+    }
+
+    public function setRelatedValue(?string $related_value): self
+    {
+        $this->related_value = $related_value;
 
         return $this;
     }

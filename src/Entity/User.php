@@ -47,10 +47,16 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
      */
     private $permissions;
 
+    /**
+     * @ORM\ManyToMany(targetEntity=Person::class, mappedBy="users")
+     */
+    private $people;
+
     public function __construct()
     {
         $this->roles2 = new ArrayCollection();
         $this->permissions = new ArrayCollection();
+        $this->people = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -176,6 +182,33 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     {
         if ($this->permissions->removeElement($permission)) {
             $permission->removeUser($this);
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|Person[]
+     */
+    public function getPeople(): Collection
+    {
+        return $this->people;
+    }
+
+    public function addPerson(Person $person): self
+    {
+        if (!$this->people->contains($person)) {
+            $this->people[] = $person;
+            $person->addUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removePerson(Person $person): self
+    {
+        if ($this->people->removeElement($person)) {
+            $person->removeUser($this);
         }
 
         return $this;
