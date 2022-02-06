@@ -52,11 +52,17 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
      */
     private $people;
 
+    /**
+     * @ORM\OneToMany(targetEntity=Test::class, mappedBy="user")
+     */
+    private $tests;
+
     public function __construct()
     {
         $this->roles2 = new ArrayCollection();
         $this->permissions = new ArrayCollection();
         $this->people = new ArrayCollection();
+        $this->tests = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -209,6 +215,36 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     {
         if ($this->people->removeElement($person)) {
             $person->removeUser($this);
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|Test[]
+     */
+    public function getTests(): Collection
+    {
+        return $this->tests;
+    }
+
+    public function addTest(Test $test): self
+    {
+        if (!$this->tests->contains($test)) {
+            $this->tests[] = $test;
+            $test->setUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeTest(Test $test): self
+    {
+        if ($this->tests->removeElement($test)) {
+            // set the owning side to null (unless already changed)
+            if ($test->getUser() === $this) {
+                $test->setUser(null);
+            }
         }
 
         return $this;
