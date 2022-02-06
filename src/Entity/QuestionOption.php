@@ -4,6 +4,7 @@ namespace App\Entity;
 
 use App\Repository\QuestionOptionRepository;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @ORM\Entity(repositoryClass=QuestionOptionRepository::class)
@@ -25,6 +26,7 @@ class QuestionOption
 
     /**
      * @ORM\Column(type="string", length=255)
+     * @Assert\NotNull
      */
     private $question_option;
 

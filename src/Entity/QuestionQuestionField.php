@@ -4,6 +4,7 @@ namespace App\Entity;
 
 use App\Repository\QuestionQuestionFieldRepository;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @ORM\Entity(repositoryClass=QuestionQuestionFieldRepository::class)
@@ -19,6 +20,7 @@ class QuestionQuestionField
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
+     * @Assert\NotNull
      */
     private $value;
 

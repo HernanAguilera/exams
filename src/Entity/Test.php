@@ -3,7 +3,10 @@
 namespace App\Entity;
 
 use App\Repository\TestRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @ORM\Entity(repositoryClass=TestRepository::class)
@@ -20,6 +23,7 @@ class Test
     /**
      * @ORM\ManyToOne(targetEntity=Exam::class, inversedBy="tests")
      * @ORM\JoinColumn(nullable=false)
+     * @Assert\NotNull
      */
     private $exam;
 
@@ -36,6 +40,7 @@ class Test
 
     /**
      * @ORM\Column(type="date", nullable=true)
+     * @Assert\Date
      */
     private $date;
 
@@ -45,10 +50,14 @@ class Test
     private $attended;
 
     /**
-     * @ORM\ManyToOne(targetEntity=Answer::class, inversedBy="test")
-     * @ORM\JoinColumn(nullable=false)
+     * @ORM\OneToMany(targetEntity=Answer::class, mappedBy="test")
      */
-    private $answer;
+    private $answers;
+
+    public function __construct()
+    {
+        $this->answers = new ArrayCollection();
+    }
 
     public function getId(): ?int
     {
@@ -115,14 +124,32 @@ class Test
         return $this;
     }
 
-    public function getAnswer(): ?Answer
+    /**
+     * @return Collection|Answer[]
+     */
+    public function getAnswers(): Collection
     {
-        return $this->answer;
+        return $this->answers;
     }
 
-    public function setAnswer(?Answer $answer): self
+    public function addAnswer(Answer $answer): self
     {
-        $this->answer = $answer;
+        if (!$this->answers->contains($answer)) {
+            $this->answers[] = $answer;
+            $answer->setTest($this);
+        }
+
+        return $this;
+    }
+
+    public function removeAnswer(Answer $answer): self
+    {
+        if ($this->answers->removeElement($answer)) {
+            // set the owning side to null (unless already changed)
+            if ($answer->getTest() === $this) {
+                $answer->setTest(null);
+            }
+        }
 
         return $this;
     }
