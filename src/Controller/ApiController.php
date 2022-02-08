@@ -219,6 +219,7 @@ class ApiController extends AbstractController
         } catch (\Throwable $th) {
             $obj = null;
             $errors = ['default' => 'Unknown error in recieved data'];
+            // dd($th->getTraceAsString());
         }
 
         return [

@@ -2,7 +2,9 @@
 
 namespace App\Repository;
 
+use App\Entity\Company;
 use App\Entity\Exam;
+use App\Traits\EntityRepositoryTrait;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
@@ -12,8 +14,10 @@ use Doctrine\Persistence\ManagerRegistry;
  * @method Exam[]    findAll()
  * @method Exam[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
  */
-class ExamRepository extends ServiceEntityRepository
+class ExamRepository extends ServiceEntityRepository implements MetadataInterface
 {
+    use EntityRepositoryTrait;
+
     public function __construct(ManagerRegistry $registry)
     {
         parent::__construct($registry, Exam::class);
@@ -47,4 +51,20 @@ class ExamRepository extends ServiceEntityRepository
         ;
     }
     */
+
+    public function completeFields($object): void
+    {
+        
+    }
+
+    public static function getRelations(): array
+    {
+        return [
+            [
+                'class' => Company::class,
+                'field' => 'companies',
+                'type' => 'ManyToMany'
+            ]
+        ];
+    }
 }

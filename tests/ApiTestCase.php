@@ -49,7 +49,6 @@ class ApiTestCase extends WebTestCase {
                 'password' => $password,
             ])
         );
-
         $data = json_decode($client->getResponse()->getContent(), true);
 
         $client->setServerParameter('HTTP_Authorization', sprintf('Bearer %s', $data['token']));
