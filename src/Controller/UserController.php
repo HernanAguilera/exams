@@ -23,12 +23,8 @@ class UserController extends ApiController
     #[Route('/register', name: 'user_register', methods: ['POST'])]
     public function register(Request $request, UserRepository $userRepository, UserSerializer $userSerializer, JWTTokenManagerInterface $JWTManager): Response
     {
-        $json_data = json_decode($request->getContent(), true);
-        foreach ($json_data as $key => $field) {
-            if (is_null($field)){
-                unset($json_data[$key]);
-            }
-        }
+        $json_data = $this->cleanNulls($request->getContent());
+        
         try {
             $obj = $this->serializer->deserialize(json_encode($json_data), []);
             $errors = $this->validator->validate($obj);

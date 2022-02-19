@@ -25,7 +25,7 @@ trait EntityRepositoryTrait
                     case 'ManyToMany':
                         $relations[$relation['field']] = [];
                         if (!is_array($data[$relation['field']]))
-                            continue;
+                            break;
                         foreach($data[$relation['field']] as $field) {
                             $relations[$relation['field']][] = $doctrine->getRepository($relation['class'])->find($field);
                         }

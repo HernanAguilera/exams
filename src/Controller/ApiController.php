@@ -2,15 +2,10 @@
 
 namespace App\Controller;
 
-use App\Repository\MetadataInterface;
 use App\Serializers\BaseSerializer;
-use App\Serializers\SerializerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
-use Symfony\Component\Serializer\Encoder\JsonEncoder;
 use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
-use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
-use Symfony\Component\Serializer\Serializer;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 class ApiController extends AbstractController
@@ -201,12 +196,7 @@ class ApiController extends AbstractController
     }
 
     public function validateData(String $data, $doctrine, $old_object = null){
-        $json_data = json_decode($data, true);
-        foreach ($json_data as $key => $field) {
-            if (is_null($field)){
-                unset($json_data[$key]);
-            }
-        }
+        $json_data = $this->cleanNulls($data);
         list($relations, $cleaned_data) = $this->repository->checkRelations($json_data, $doctrine);
         $context = [];
         if (!is_null($old_object))
@@ -240,5 +230,19 @@ class ApiController extends AbstractController
     {
         $serializer = is_null($serializer)? $this->serializer : $serializer;
         return json_decode($serializer->serialize($data), true);
+    }
+
+    public function cleanNulls($data)
+    {
+        $json_data = json_decode($data, true);
+        if (!$json_data)
+            return [];
+        foreach ($json_data as $key => $field) {
+            if (is_null($field)){
+                unset($json_data[$key]);
+            }
+        }
+
+        return $json_data;
     }
 }

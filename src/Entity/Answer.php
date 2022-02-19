@@ -38,7 +38,7 @@ class Answer
 
     public function __construct()
     {
-        $this->test = new ArrayCollection();
+        // $this->test = new ArrayCollection();
     }
 
     public function getId(): ?int

@@ -13,6 +13,11 @@ use Symfony\Component\Validator\Constraints as Assert;
  */
 class Test
 {
+    public const RESERVED = 'Reserved';
+    public const IN_PROGRESS = 'In progress';
+    public const CANCELED = 'Canceled';
+    public const FINISHIED = 'Finishied';
+
     /**
      * @ORM\Id
      * @ORM\GeneratedValue
