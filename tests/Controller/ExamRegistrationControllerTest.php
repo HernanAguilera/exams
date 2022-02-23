@@ -67,7 +67,9 @@ class ExamRegistrationControllerTest extends ApiTestCase
 
         $this->assertResponseStatusCodeSame(400);
         $this->assertArrayHasKey('errors', $response);
-        $this->assertArrayHasKey('name', $response['errors']);
+        $this->assertArrayHasKey('exam', $response['errors']);
+        $this->assertArrayHasKey('user', $response['errors']);
+        $this->assertArrayHasKey('date', $response['errors']);
     }
 
     public function test_get_individual_existent_exam()
@@ -85,12 +87,12 @@ class ExamRegistrationControllerTest extends ApiTestCase
         $crawler = $this->get($this->api_url . $test->getId());
         $response = $this->getResponse();
 
-        print_r($response);
-
-        // $this->assertEquals($exam->getId(), $response['id']);
-        // $this->assertEquals($exam->getName(), $response['name']);
-        // $this->assertArrayHasKey('companies', $response);
-        // $this->assertEquals($exam->getCompanies()[0]->getId(), $response['companies'][0]['id']);
+        $this->assertEquals($test->getId(), $response['id']);
+        $this->assertEquals($exam->getId(), $response['exam']['id']);
+        $this->assertEquals($exam->getName(), $response['exam']['name']);
+        $this->assertEquals($user->getId(), $response['user']['id']);
+        $this->assertEquals($user->getEmail(), $response['user']['email']);
+        
     }
 
     public function test_get_individual_unexistent_exam()
@@ -104,30 +106,54 @@ class ExamRegistrationControllerTest extends ApiTestCase
 
     public function test_update_existent_exam_with_correct_data()
     {
-        $company = CompanyFactory::create($this->entityManager);
-        $exam = TestFactory::create($this->entityManager);
-        $exam->addCompany($company);
-        $this->entityManager->persist($exam);
+        $test = TestFactory::add();
+        $exam = ExamFactory::create($this->entityManager);
+        $user = $this->createUser();
+
+        $test->setExam($exam);
+        $test->setUser($user);
+
+        $this->entityManager->persist($test);
         $this->entityManager->flush();
 
-        $company2 = CompanyFactory::create($this->entityManager);
+        $exam2 = ExamFactory::create($this->entityManager);
+        $user2 = $this->createUser();
+
         $data = [
-            'name' => $this->faker->text(255),
-            'companies' => [$company2->getId()]
+            'exam' => $exam2->getId(),
+            'user' => $user2->getId(),
+            'date' => date_format($this->faker->dateTimeBetween('+1 week', '+4 weeks'), 'Y-m-d')
         ];
 
-        $crawler = $this->put($data, $this->api_url . $exam->getId());
+        $crawler = $this->put($data, $this->api_url . $test->getId());
         $response = $this->getResponse();
 
         $this->assertResponseStatusCodeSame(200);
-        $this->assertEquals($data['name'], $response['object']['name']);
-        $this->assertEquals($data['companies'][0], $response['object']['companies'][1]['id']);
+        $this->assertEquals($data['exam'], $response['exam']['id']);
+        $this->assertEquals($data['user'], $response['user']['id']);
+        $this->assertEquals($data['date'], $response['date']);
     }
+
 
     public function test_update_unexistent_exam_with_correct_data()
     {
+        $test = TestFactory::add();
+        $exam = ExamFactory::create($this->entityManager);
+        $user = $this->createUser();
+
+        $test->setExam($exam);
+        $test->setUser($user);
+
+        $this->entityManager->persist($test);
+        $this->entityManager->flush();
+
+        $exam2 = ExamFactory::create($this->entityManager);
+        $user2 = $this->createUser();
+
         $data = [
-            'name' => $this->faker->text(255)
+            'exam' => $exam2->getId(),
+            'user' => $user2->getId(),
+            'date' => date_format($this->faker->dateTimeBetween('+1 week', '+4 weeks'), 'Y-m-d')
         ];
 
         $crawler = $this->put($data, $this->api_url . $this->faker->randomNumber(5, false));
@@ -139,13 +165,21 @@ class ExamRegistrationControllerTest extends ApiTestCase
 
     public function test_delete_existent_exam()
     {
-        $exam = TestFactory::create($this->entityManager);
-        $crawler = $this->delete(null, $this->api_url . $exam->getId());
+        $test = TestFactory::add();
+        $exam = ExamFactory::create($this->entityManager);
+        $user = $this->createUser();
+
+        $test->setExam($exam);
+        $test->setUser($user);
+
+        $this->entityManager->persist($test);
+        $this->entityManager->flush();
+
+        $crawler = $this->delete(null, $this->api_url . $test->getId());
         $response = $this->getResponse();
 
         $this->assertResponseStatusCodeSame(200);
         $this->assertArrayHasKey('message', $response);
-        $this->assertArrayHasKey('objects', $response);
     }
 
     public function test_delete_unexistent_exam()

@@ -82,4 +82,9 @@ class BaseSerializer implements SerializerInterface{
             return $this->getNormalizers()[0]->normalize($entity);
         return $this->getNormalizers()[0]->normalize($entity, null, [ AbstractNormalizer::ATTRIBUTES => $fields ]);
     }
+
+    public function convertDate($dateNormalized): string
+    {
+        return date('Y-m-d', $dateNormalized);
+    }
 }

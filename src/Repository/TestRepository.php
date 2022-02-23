@@ -44,10 +44,10 @@ class TestRepository extends ServiceEntityRepository
 
         if (key_exists('user', $data) && ($data['user'] instanceof User))
             $test->setUser($data['user']);
-        if (key_exists('exam', $data) && ($data['exam'] instanceof User))
-            $test->setUser($data['exam']);
+        if (key_exists('exam', $data) && ($data['exam'] instanceof Exam))
+            $test->setExam($data['exam']);
         if (key_exists('date', $data))
-            $test->setUser($data['date']);
+            $test->setDate($data['date']);
 
         $test->setStatus(Test::RESERVED);
         $test->setAttended(false);

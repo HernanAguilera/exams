@@ -8,6 +8,7 @@ use App\Repository\TestRepository;
 use App\Repository\UserRepository;
 use App\Serializers\DTO\ExamRegistrationDtoSerializer;
 use App\Serializers\DTO\ExamRegistrationUpdatingDtoSerializer;
+use App\Serializers\Entity\TestSerializer;
 use DateTime;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
@@ -66,9 +67,12 @@ class ExamRegistrationController extends ApiController
             $errors = ['default' => ['Unknown error in recieved data']];
             dd($th->getMessage());
         }
-
+        
         if (count($errors) > 0) {
-            return $this->jsonResponse($errors, ['status_code' => 400]);
+            return $this->jsonResponse(
+                ['errors' => $this->getErrorsArray($errors)], 
+                ['status_code' => 400]
+            );
         }
 
         $user = $this->userRepository->find($json_data['user']);
@@ -97,29 +101,30 @@ class ExamRegistrationController extends ApiController
     }
 
     #[Route('/{id}', name: 'exam_registration_show', methods: ['GET'])]
-    public function show(Test $test) {
-        return $this->response($test);
+    public function show(Test $test, TestSerializer $serializer) {
+        $testResponse = $serializer->normalize($test, $serializer->getFields());
+        $testResponse['date'] = $serializer->convertDate($testResponse['date']['timestamp']);
+        return $this->jsonResponse($testResponse);
     }
 
-    #[Route('/{id}/edit', name: 'exam_registration_edit', methods: ['PUT'])]
-    public function edit(Test $test, Request $request, ExamRegistrationUpdatingDtoSerializer $serializer)
+    #[Route('/{id}', name: 'exam_registration_edit', methods: ['PUT'])]
+    public function edit(Test $test, Request $request, ExamRegistrationUpdatingDtoSerializer $DTOserializer, ValidatorInterface $validator, TestSerializer $serializer)
     {
         $json_data = $this->cleanNulls($request->getContent());
 
         try {
-            $objDTO = $serializer->deserialize(json_encode($json_data), []);
-            $errors = $this->validator->validate($objDTO);
+            $objDTO = $DTOserializer->deserialize(json_encode($json_data), []);
+            $errors = $validator->validate($objDTO);
         } catch (\Throwable $th) {
             $objDTO = null;
             $errors = ['default' => ['Unknown error in recieved data']];
         }
 
         if (count($errors) > 0) {
-            return $this->response([
-                'errors' => $errors,
-            ], [
-                'status_code' => 400
-            ]);
+            return $this->jsonResponse(
+                ['errors' => $this->getErrorsArray($errors)], 
+                ['status_code' => 400]
+            );
         }
 
         $data_to_modified = [];
@@ -131,7 +136,7 @@ class ExamRegistrationController extends ApiController
                 $data_to_modified['user'] = $user;
         }
         if (key_exists('exam', $json_data)){
-            $exam = $this->examRepository->find($json_data['user']);
+            $exam = $this->examRepository->find($json_data['exam']);
             if (!$exam)
                 $error['exam'] = 'Exam not found';
             else
@@ -142,7 +147,7 @@ class ExamRegistrationController extends ApiController
             if (!checkdate($splited_date[1], $splited_date[2], $splited_date[0]))
                 $error['date'] = 'Date: ' . $json_data['date'] . ', is not valid';
             else
-                $data_to_modified['user'] = $json_data['date'];
+                $data_to_modified['date'] = new \DateTime($json_data['date']);
         }
         
         if (count($errors) > 0) {
@@ -155,13 +160,12 @@ class ExamRegistrationController extends ApiController
 
         $test = $this->testRepository->updatedRegister($test, $data_to_modified);
 
-        $dataResponse = [
-            'registration' => $test
-        ];
-        return $this->jsonResponse($dataResponse, ['status_code' => 200]);
+        $testResponse = $serializer->normalize($test, $serializer->getFields());
+        $testResponse['date'] = $serializer->convertDate($testResponse['date']['timestamp']);
+        return $this->jsonResponse($testResponse, ['status_code' => 200]);
     }
 
-    #[Route('/{id}/cancel', name: 'exam_registration_edit', methods: ['DELETE'])]
+    #[Route('/{id}', name: 'exam_registration_cancel', methods: ['DELETE'])]
     public function cancel(Test $test)
     {
         try {
@@ -172,7 +176,7 @@ class ExamRegistrationController extends ApiController
             ]);    
         }
 
-        return $this->response([
+        return $this->jsonResponse([
             "message" => "Register cancelled"
         ]);
     }
