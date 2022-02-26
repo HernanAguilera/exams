@@ -23,22 +23,37 @@ class ExamRepository extends ServiceEntityRepository implements MetadataInterfac
         parent::__construct($registry, Exam::class);
     }
 
-    // /**
-    //  * @return Exam[] Returns an array of Exam objects
-    //  */
-    /*
-    public function findByExampleField($value)
+    /**
+     * @return Exam[] Returns an array of Exam objects
+     */
+    public function search($params): array
     {
-        return $this->createQueryBuilder('e')
-            ->andWhere('e.exampleField = :val')
-            ->setParameter('val', $value)
-            ->orderBy('e.id', 'ASC')
-            ->setMaxResults(10)
-            ->getQuery()
-            ->getResult()
-        ;
+        $query = $this->createQueryBuilder('e');
+        if (key_exists('name', $params)){
+            $query = $query->andWhere('e.name LIKE :name')
+                           ->setParameter('name', "%".$params['name']."%");
+        }
+        if (key_exists('company', $params)){
+            $query = $query->leftjoin('e.companies', 'c')
+                           ->andWhere('c.commercial_name LIKE :company')
+                           ->setParameter('company',"%".$params['company']."%");
+        }
+
+        return $query->orderBy('e.id', 'ASC')
+                    // ->setMaxResults(10)
+                    ->getQuery()
+                    ->getResult()
+                    ;
+
+        // return $this->createQueryBuilder('e')
+        //     ->andWhere('e.exampleField = :val')
+        //     ->setParameter('val', $value)
+        //     ->orderBy('e.id', 'ASC')
+        //     ->setMaxResults(10)
+        //     ->getQuery()
+        //     ->getResult()
+        // ;
     }
-    */
 
     /*
     public function findOneBySomeField($value): ?Exam

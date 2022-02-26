@@ -26,9 +26,27 @@ class ExamController extends ApiController
     }
 
     #[Route('/', name: 'exam_index', methods: ['GET'])]
-    public function index(ExamRepository $examRepository): Response
+    public function index(ExamRepository $examRepository, Request $request, ExamSerializer $serializer): Response
     {
-        return $this->response($examRepository->findAll());
+        $json_data = $this->cleanNulls($request->getContent());
+        $filters = [];
+
+        if ($request->query->get('name'))
+            $filters['name'] = $request->query->get('name');
+        if ($request->query->get('company'))
+            $filters['company'] = $request->query->get('company');
+
+        if (count($filters) === 0) {
+            $exams = $examRepository->findAll();
+        } else {
+            $exams =  $examRepository->search($filters);
+        }
+
+        $exams = array_map(function($exam) use($serializer) {
+            return $serializer->normalize($exam, ['id', 'name', 'companies' => ['id', 'commercialName']]);
+        }, $exams);
+
+        return $this->jsonResponse($exams);
     }
 
     #[Route('/', name: 'exam_new', methods: ['POST'])]

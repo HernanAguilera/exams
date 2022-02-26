@@ -20,13 +20,53 @@ class ExamControllerTest extends ApiTestCase
     public function test_list_respond_correctly(): void
     {
         $n = rand(1, 20);
-        $exam = ExamFactory::create($this->entityManager, $n);
+        $company = CompanyFactory::create($this->entityManager);
+        $exams = ExamFactory::create($this->entityManager, $n);
+        if (!is_array($exams)) {
+            $exams = [$exams];
+        }
+        foreach($exams as $exam) {
+            $exam->addCompany($company);
+            $this->entityManager->persist($exam);
+        }
+        $this->entityManager->flush();
 
         $crawler = $this->get();
 
         $response = $this->getResponse();
 
         $this->assertEquals($n, count($response));
+        $this->assertArrayHasKey('name', $response[0]);
+        $this->assertArrayHasKey('companies', $response[0]);
+        $this->assertEquals(count($exams[0]->getCompanies()), count($response[0]['companies']));
+    }
+
+    public function test_list_filter_respond_correctly(): void
+    {
+        $n = 5;
+        $company = CompanyFactory::create($this->entityManager);
+        $exams = ExamFactory::create($this->entityManager, $n);
+        foreach($exams as $exam) {
+            $exam->addCompany($company);
+            $this->entityManager->persist($exam);
+        }
+        $this->entityManager->flush();
+
+        $name = $exams[0]->getName();
+        $company = $company->getCommercialName();
+
+        $name = substr($name, 0, strlen($name)-2);
+        $company = substr($company, 0, strlen($company)-2);
+
+        $crawler = $this->get("{$this->api_url}?name={$name}&company={$company}");
+
+        $response = $this->getResponse();
+
+        // dd($response);
+
+        $this->assertArrayHasKey('name', $response[0]);
+        $this->assertArrayHasKey('companies', $response[0]);
+        $this->assertEquals(count($exams[0]->getCompanies()), count($response[0]['companies']));
     }
 
     public function test_create_a_exam_with_correct_data()
