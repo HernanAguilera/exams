@@ -2,18 +2,18 @@
 
 namespace App\EntityFactories;
 
-use App\Entity\Exam;
+use App\Entity\Schedule;
 use Doctrine\ORM\EntityManager;
 use Faker\Factory;
 
-class ExamFactory extends BaseEntityFactory
+class ScheduleFactory extends BaseEntityFactory
 {
     public static function add($n=1, $options=[]) {
         $faker = Factory::create();
         $defaults = [
-            'name' => function() use ($faker) { return $faker->words(rand(1, 10), true); }
+            'date' => function() use ($faker) { return $faker->dateTimeBetween('+1 week', '+4 weeks'); }
         ];
-        $objects = self::fillData($n, Exam::class, $defaults, $options);
+        $objects = self::fillData($n, Schedule::class, $defaults, $options);
         return $n > 1? $objects : $objects[0];
     }
 

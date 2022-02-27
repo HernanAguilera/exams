@@ -44,12 +44,6 @@ class Test
     private $status;
 
     /**
-     * @ORM\Column(type="date", nullable=true)
-     * @Assert\Date
-     */
-    private $date;
-
-    /**
      * @ORM\Column(type="boolean", nullable=true)
      */
     private $attended;
@@ -58,6 +52,11 @@ class Test
      * @ORM\OneToMany(targetEntity=Answer::class, mappedBy="test")
      */
     private $answers;
+
+    /**
+     * @ORM\ManyToOne(targetEntity=Schedule::class, inversedBy="tests")
+     */
+    private $schedule;
 
     public function __construct()
     {
@@ -105,18 +104,6 @@ class Test
         return $this;
     }
 
-    public function getDate(): ?\DateTimeInterface
-    {
-        return $this->date;
-    }
-
-    public function setDate(?\DateTimeInterface $date): self
-    {
-        $this->date = $date;
-
-        return $this;
-    }
-
     public function getAttended(): ?bool
     {
         return $this->attended;
@@ -155,6 +142,18 @@ class Test
                 $answer->setTest(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getSchedule(): ?Schedule
+    {
+        return $this->schedule;
+    }
+
+    public function setSchedule(?Schedule $schedule): self
+    {
+        $this->schedule = $schedule;
 
         return $this;
     }

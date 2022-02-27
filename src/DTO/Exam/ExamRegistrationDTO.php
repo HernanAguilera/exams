@@ -21,10 +21,9 @@ class ExamRegistrationDTO
 
     /**
      * @Assert\NotNull
-     * @Assert\Date
-     * @var string A "Y-m-d" formatted value
+     * @Assert\Positive
      */
-    protected $date;
+    protected $schedule;
 
 
     /**
@@ -67,22 +66,23 @@ class ExamRegistrationDTO
         return $this;
     }
 
+
     /**
-     * Get the value of date
+     * Get the value of schedule
      */ 
-    public function getDate()
+    public function getSchedule()
     {
-        return $this->date;
+        return $this->schedule;
     }
 
     /**
-     * Set the value of date
+     * Set the value of schedule
      *
      * @return  self
      */ 
-    public function setDate($date)
+    public function setSchedule($schedule)
     {
-        $this->date = $date;
+        $this->schedule = $schedule;
 
         return $this;
     }

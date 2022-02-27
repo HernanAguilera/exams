@@ -2,22 +2,21 @@
 
 namespace App\Serializers\Entity;
 
-use App\Entity\Test;
+use App\Entity\Schedule;
 use App\Serializers\BaseSerializer;
 
-class TestSerializer extends BaseSerializer {
+class ScheduleSerializer extends BaseSerializer {
 
     protected $fields = [
         'id',
         'exam' => ['id', 'name'],
-        'user' => ['id', 'email'],
-        'schedule' => ['id', 'date']
+        'date'
     ];
 
     public function __construct()
     {
         parent::__construct();
-        $this->classEntity = Test::class;
+        $this->classEntity = Schedule::class;
     }
 
      /**

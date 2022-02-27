@@ -12,7 +12,6 @@ class TestFactory extends BaseEntityFactory
         $faker = Factory::create();
         $defaults = [
             'status' => function() { return Test::RESERVED; },
-            'date' => function() use ($faker) { return $faker->dateTimeBetween('+1 week', '+4 weeks'); },
             'attended' => function() { return false; }
         ];
         $objects = self::fillData($n, Test::class,$defaults, $options);

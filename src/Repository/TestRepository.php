@@ -3,6 +3,7 @@
 namespace App\Repository;
 
 use App\Entity\Exam;
+use App\Entity\Schedule;
 use App\Entity\Test;
 use App\Entity\User;
 use DateTime;
@@ -23,12 +24,15 @@ class TestRepository extends ServiceEntityRepository
         parent::__construct($registry, Test::class);
     }
 
-    public function registerUserToExam(User $user, Exam $exam, DateTime $date): Test
+    public function registerUserToExam(User $user, Exam $exam, Schedule $schedule): Test
     {
+        if ($exam->getId() != $schedule->getExam()->getId()) {
+            throw new Exception('Schedule does not correspond to exam');
+        }
         $test = new Test;
         $test->setUser($user);
         $test->setExam($exam);
-        $test->setDate($date);
+        $test->setSchedule($schedule);
         $test->setStatus(Test::RESERVED);
         $test->setAttended(false);
         $this->_em->persist($test);
@@ -46,8 +50,8 @@ class TestRepository extends ServiceEntityRepository
             $test->setUser($data['user']);
         if (key_exists('exam', $data) && ($data['exam'] instanceof Exam))
             $test->setExam($data['exam']);
-        if (key_exists('date', $data))
-            $test->setDate($data['date']);
+        if (key_exists('schedule', $data))
+            $test->setSchedule($data['schedule']);
 
         $test->setStatus(Test::RESERVED);
         $test->setAttended(false);

@@ -107,8 +107,6 @@ class ExamControllerTest extends ApiTestCase
         $crawler = $this->get($this->api_url . $exam->getId());
         $response = $this->getResponse();
 
-        print_r($response);
-
         $this->assertEquals($exam->getId(), $response['id']);
         $this->assertEquals($exam->getName(), $response['name']);
         $this->assertArrayHasKey('companies', $response);

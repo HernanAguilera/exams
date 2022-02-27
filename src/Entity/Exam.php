@@ -41,11 +41,17 @@ class Exam
      */
     private $tests;
 
+    /**
+     * @ORM\OneToMany(targetEntity=Schedule::class, mappedBy="exam")
+     */
+    private $schedules;
+
     public function __construct()
     {
         $this->companies = new ArrayCollection();
         $this->questions = new ArrayCollection();
         $this->tests = new ArrayCollection();
+        $this->schedules = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -143,6 +149,36 @@ class Exam
             // set the owning side to null (unless already changed)
             if ($test->getExam() === $this) {
                 $test->setExam(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|Schedule[]
+     */
+    public function getSchedules(): Collection
+    {
+        return $this->schedules;
+    }
+
+    public function addSchedule(Schedule $schedule): self
+    {
+        if (!$this->schedules->contains($schedule)) {
+            $this->schedules[] = $schedule;
+            $schedule->setExam($this);
+        }
+
+        return $this;
+    }
+
+    public function removeSchedule(Schedule $schedule): self
+    {
+        if ($this->schedules->removeElement($schedule)) {
+            // set the owning side to null (unless already changed)
+            if ($schedule->getExam() === $this) {
+                $schedule->setExam(null);
             }
         }
 
